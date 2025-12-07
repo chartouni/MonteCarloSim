@@ -1,18 +1,15 @@
 #pragma once
 
-#include "Option.h"
-#include "StochasticProcess.h"
 #include "RandomGenerator.h"
 #include "Statistics.h"
 #include <thread>
 #include <vector>
-#include <future>
 #include <functional>
 
 namespace montecarlo {
 
 struct SimulationResult {
-    double price;
+    double mean;
     double standardError;
     double confidenceLower;
     double confidenceUpper;
@@ -20,34 +17,30 @@ struct SimulationResult {
     double elapsedSeconds;
 };
 
+// Type alias for simulation functions
+// Function takes a RandomGenerator and returns a double result
+using SimulationFunc = std::function<double(RandomGenerator&)>;
+
 class Engine {
 public:
     Engine(size_t numThreads = 0)
         : numThreads_(numThreads > 0 ? numThreads : std::thread::hardware_concurrency()) {}
 
-    // Price an option using Monte Carlo simulation
-    SimulationResult priceOption(
-        const Option& option,
-        const StochasticProcess& process,
-        double S0,              // Initial stock price
-        double r,               // Risk-free rate
-        double T,               // Time to maturity
-        size_t numPaths,        // Number of Monte Carlo paths
-        size_t numSteps = 100   // Time steps per path (for path-dependent options)
+    // Run a Monte Carlo simulation with a user-defined function
+    SimulationResult run(
+        SimulationFunc simulation,  // User's simulation function
+        size_t numSamples          // Number of Monte Carlo samples
     );
+
+    size_t getNumThreads() const { return numThreads_; }
 
 private:
     size_t numThreads_;
 
     // Worker function for each thread
     void runSimulations(
-        const Option& option,
-        const StochasticProcess& process,
-        double S0,
-        double r,
-        double T,
-        size_t numPaths,
-        size_t numSteps,
+        SimulationFunc simulation,
+        size_t numSamples,
         unsigned int seed,
         Statistics& stats
     );

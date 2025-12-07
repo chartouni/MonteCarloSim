@@ -17,8 +17,6 @@ find_package(Threads REQUIRED)
 set(SOURCES
     src/Engine.cpp
     src/RandomGenerator.cpp
-    src/StochasticProcess.cpp
-    src/Option.cpp
     src/Statistics.cpp
 )
 
@@ -31,11 +29,11 @@ target_include_directories(montecarlo PUBLIC
 target_link_libraries(montecarlo PUBLIC Threads::Threads)
 
 # Examples
-add_executable(european_option examples/european_option.cpp)
-target_link_libraries(european_option PRIVATE montecarlo)
+add_executable(estimate_pi examples/estimate_pi.cpp)
+target_link_libraries(estimate_pi PRIVATE montecarlo)
 
-add_executable(asian_option examples/asian_option.cpp)
-target_link_libraries(asian_option PRIVATE montecarlo)
+add_executable(monte_carlo_integration examples/monte_carlo_integration.cpp)
+target_link_libraries(monte_carlo_integration PRIVATE montecarlo)
 
 # Install rules
 install(TARGETS montecarlo
